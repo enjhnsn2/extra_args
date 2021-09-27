@@ -125,6 +125,7 @@ impl Fold for Args {
     }
 }
 
+#[cfg(feature = "enable")]
 #[proc_macro_attribute]
 pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
@@ -137,3 +138,25 @@ pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
     // Hand the resulting function body back to the compiler.
     TokenStream::from(quote!(#output))
 }
+
+// if extra_arg is disabled, make a noop
+#[cfg(not(feature = "enable"))]
+#[proc_macro_attribute]
+pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
+    input
+}
+
+// #[proc_macro_attribute]
+// pub fn all_with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
+//     let input = parse_macro_input!(input as ItemFn);
+//     // Parse the name binding and type of the global state
+//     let mut args = parse_macro_input!(args as Args);
+
+//     // Use a syntax tree traversal to transform the function body and signature.
+//     println!("all_with_extra_args: input = {:#?}", input);
+//     unimplemented!()
+//     // let output = args.fold_item_fn(input);
+
+//     // // Hand the resulting function body back to the compiler.
+//     // TokenStream::from(quote!(#output))
+// }
