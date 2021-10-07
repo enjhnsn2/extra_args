@@ -5,8 +5,8 @@ use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream, Result};
 use syn::spanned::Spanned;
 use syn::{
-    parse_macro_input, Expr, ExprCall, ExprMethodCall, ExprPath, FnArg, Ident, ItemFn, Pat, Path,
-    PathArguments, PathSegment, Signature, Type,
+    parse_macro_input, Attribute, Expr, ExprCall, ExprMethodCall, ExprPath, FnArg, Ident, ItemFn,
+    Pat, Path, PathArguments, PathSegment, Signature, Type,
 };
 
 /// Right now macro should be used like:
@@ -16,6 +16,8 @@ struct Args {
     decl: FnArg,
     var: Ident,
     ty: Type,
+    external_calls: Vec<Ident>,
+    external_methods: Vec<Ident>,
 }
 
 impl Args {
@@ -82,6 +84,34 @@ fn pat_to_ident(pat: Pat) -> Result<Ident> {
     ))
 }
 
+fn path_to_last_ident(path: Path) -> Result<Ident> {
+    let err = Err(syn::Error::new(
+        path.span(),
+        "Expr needs to be an ident to call expr_to_ident",
+    ));
+    //    if path.segments.len() == 1 {
+    //         return path.get_ident().map_or(err, |i| Ok(i.clone()) );
+    //    }
+    let final_segment = path.segments.last();
+    return final_segment.map_or(err, |i| Ok(i.ident.clone()));
+}
+
+/// MyClass::new() => Ok(new)
+/// do_math(x) => Ok(do_math)
+fn expr_to_ident(expr: Expr) -> Result<Ident> {
+    // if it is an ident, try to unwrap and return it
+    if let Expr::Path(expr_path) = expr {
+        //let maybe_ident = expr_path.path.get_ident();
+        return path_to_last_ident(expr_path.path);
+        //return maybe_ident.map_or(err, |i| Ok(i.clone()) )
+    }
+    // else, fail
+    Err(syn::Error::new(
+        expr.span(),
+        "Expr needs to be an ident to call expr_to_ident",
+    ))
+}
+
 // Parse arguments for macro
 impl Parse for Args {
     fn parse(input: ParseStream) -> Result<Self> {
@@ -89,7 +119,13 @@ impl Parse for Args {
         if let FnArg::Typed(ref pat_ty) = decl {
             let var = pat_to_ident(*pat_ty.pat.clone())?;
             let ty = *pat_ty.ty.clone();
-            return Ok(Args { decl, var, ty });
+            return Ok(Args {
+                decl,
+                var,
+                ty,
+                external_calls: Vec::new(),
+                external_methods: Vec::new(),
+            });
         }
 
         Err(syn::Error::new(
@@ -109,7 +145,22 @@ impl Fold for Args {
     }
 
     /// Rewrite calls of the form func(...) => func(..., state)
+    /// If the call is in self.external_calls, ignore it
     fn fold_expr_call(&mut self, call: ExprCall) -> ExprCall {
+        // println!("Rewriting fn call {:#?}", call);
+        // if call is external, ignore it
+        for external_call in self.external_calls.iter() {
+            let func_name: Result<Ident> = expr_to_ident(*call.func.clone());
+            match func_name {
+                Ok(name) => {
+                    if name.to_string() == external_call.to_string() {
+                        return call;
+                    }
+                }
+                Err(err) => {}
+            }
+        }
+        // else, add ghost state
         let arg = self.var_as_expr();
         let mut new_call = call;
         new_call.args.push(arg);
@@ -117,11 +168,42 @@ impl Fold for Args {
     }
 
     /// Rewrite method calls of the form o.method(...) => o.method(..., state)
+    /// If the call is in self.external_methodss, ignore it
     fn fold_expr_method_call(&mut self, method_call: ExprMethodCall) -> ExprMethodCall {
+        // If method is external, ignore it
+        for external_method in self.external_methods.iter() {
+            if method_call.method.to_string() == external_method.to_string() {
+                return method_call;
+            }
+        }
+        // else, add ghost state
         let arg = self.var_as_expr();
         let mut new_method_call = method_call;
         new_method_call.args.push(arg);
         new_method_call
+    }
+
+    /// Record external_call and external_method attributes
+    /// self.external_calls (and self.external_methods) currently just store
+    /// the name of the target function/method
+    fn fold_attribute(&mut self, attr: Attribute) -> Attribute {
+        if attr.path.is_ident("external_call") {
+            let func_name: Result<Ident> = attr.parse_args();
+            match func_name {
+                Ok(name) => self.external_calls.push(name),
+                Err(err) => return attr,
+            };
+        }
+
+        if attr.path.is_ident("external_method") {
+            let method_name: Result<Ident> = attr.parse_args();
+            match method_name {
+                Ok(name) => self.external_methods.push(name),
+                Err(err) => return attr,
+            };
+        }
+
+        attr
     }
 }
 
