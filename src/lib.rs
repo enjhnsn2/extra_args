@@ -157,7 +157,7 @@ impl Fold for Args {
                         return call;
                     }
                 }
-                Err(err) => {}
+                Err(_) => {}
             }
         }
         // else, add ghost state
@@ -191,7 +191,7 @@ impl Fold for Args {
             let func_name: Result<Ident> = attr.parse_args();
             match func_name {
                 Ok(name) => self.external_calls.push(name),
-                Err(err) => return attr,
+                Err(_) => return attr,
             };
         }
 
@@ -199,7 +199,7 @@ impl Fold for Args {
             let method_name: Result<Ident> = attr.parse_args();
             match method_name {
                 Ok(name) => self.external_methods.push(name),
-                Err(err) => return attr,
+                Err(_) => return attr,
             };
         }
 
