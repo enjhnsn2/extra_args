@@ -228,6 +228,15 @@ pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
 
+#[proc_macro_attribute]
+pub fn external_call(_args: TokenStream, input: TokenStream) -> TokenStream {
+    input
+}
+
+#[proc_macro_attribute]
+pub fn external_method(_args: TokenStream, input: TokenStream) -> TokenStream {
+    input
+}
 // #[proc_macro_attribute]
 // pub fn all_with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
 //     let input = parse_macro_input!(input as ItemFn);
