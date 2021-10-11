@@ -10,7 +10,7 @@ use syn::{
 };
 
 /// Right now macro should be used like:
-/// #[with_extra_arg(trace: Trace)]
+/// #[with_extra_arg(trace: &mut Trace)]
 
 struct Args {
     decl: FnArg,
@@ -28,28 +28,6 @@ impl Args {
     fn var(&self) -> Ident {
         self.var.clone()
     }
-
-    /*
-    This is what the AST looks like for the inserted argument
-    Path(
-        ExprPath {
-            attrs: [],
-            qself: None,
-            path: Path {
-                leading_colon: None,
-                segments: [
-                    PathSegment {
-                        ident: Ident {
-                            ident: "state",
-                            span: #0 bytes(744..745),
-                        },
-                        arguments: None,
-                    },
-                ],
-            },
-        },
-    ),
-    */
 
     /// Converts the state ident to an expression that can be used as an argument to functions
     fn var_as_expr(&self) -> Expr {
@@ -89,9 +67,7 @@ fn path_to_last_ident(path: Path) -> Result<Ident> {
         path.span(),
         "Expr needs to be an ident to call expr_to_ident",
     ));
-    //    if path.segments.len() == 1 {
-    //         return path.get_ident().map_or(err, |i| Ok(i.clone()) );
-    //    }
+
     let final_segment = path.segments.last();
     return final_segment.map_or(err, |i| Ok(i.ident.clone()));
 }
@@ -101,9 +77,7 @@ fn path_to_last_ident(path: Path) -> Result<Ident> {
 fn expr_to_ident(expr: Expr) -> Result<Ident> {
     // if it is an ident, try to unwrap and return it
     if let Expr::Path(expr_path) = expr {
-        //let maybe_ident = expr_path.path.get_ident();
         return path_to_last_ident(expr_path.path);
-        //return maybe_ident.map_or(err, |i| Ok(i.clone()) )
     }
     // else, fail
     Err(syn::Error::new(
@@ -209,7 +183,7 @@ impl Fold for Args {
 
 #[cfg(feature = "enable")]
 #[proc_macro_attribute]
-pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn with_ghost_var(args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     // Parse the name binding and type of the global state
     let mut args = parse_macro_input!(args as Args);
@@ -224,7 +198,7 @@ pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
 // if extra_arg is disabled, make a noop
 #[cfg(not(feature = "enable"))]
 #[proc_macro_attribute]
-pub fn with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn with_ghost_var(args: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
 
@@ -237,6 +211,8 @@ pub fn external_call(_args: TokenStream, input: TokenStream) -> TokenStream {
 pub fn external_method(_args: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
+
+// #[cfg(feature = "enable")]
 // #[proc_macro_attribute]
 // pub fn all_with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
 //     let input = parse_macro_input!(input as ItemFn);
@@ -250,4 +226,11 @@ pub fn external_method(_args: TokenStream, input: TokenStream) -> TokenStream {
 
 //     // // Hand the resulting function body back to the compiler.
 //     // TokenStream::from(quote!(#output))
+// }
+
+// // if extra_arg is disabled, make a noop
+// #[cfg(not(feature = "enable"))]
+// #[proc_macro_attribute]
+// pub fn all_with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
+//     input
 // }
