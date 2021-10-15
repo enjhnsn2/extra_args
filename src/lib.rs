@@ -158,7 +158,9 @@ impl Fold for Args {
         new_method_call.args.push(arg);
         //new_method_call.reciever = Box::new(self.fold_expr(*new_method_call.reciever))
         // recurse on reciever
+        println!("old reciever = {:#?}", new_method_call.receiver);
         *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
+        println!("new reciever = {:#?}", new_method_call.receiver);
         //*new_method_call.args = self.fold_p
         // recurse on args
 
