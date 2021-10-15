@@ -156,7 +156,23 @@ impl Fold for Args {
         let arg = self.var_as_expr();
         let mut new_method_call = method_call;
         new_method_call.args.push(arg);
+        //new_method_call.reciever = Box::new(self.fold_expr(*new_method_call.reciever))
+        // recurse on reciever
+        *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
+        //*new_method_call.args = self.fold_p
+        // recurse on args
+
         new_method_call
+
+        // pub struct ExprMethodCall {
+        //     pub attrs: Vec<Attribute>,
+        //     pub receiver: Box<Expr>,
+        //     pub dot_token: Dot,
+        //     pub method: Ident,
+        //     pub turbofish: Option<MethodTurbofish>,
+        //     pub paren_token: Paren,
+        //     pub args: Punctuated<Expr, Comma>,
+        // }
     }
 
     /// Record external_call and external_method attributes
