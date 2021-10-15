@@ -144,6 +144,7 @@ impl Fold for Args {
     /// Rewrite method calls of the form o.method(...) => o.method(..., state)
     /// If the call is in self.external_methodss, ignore it
     fn fold_expr_method_call(&mut self, method_call: ExprMethodCall) -> ExprMethodCall {
+        println!("method call = {:#?}", method_call);
         // If method is external, ignore it
         for external_method in self.external_methods.iter() {
             if method_call.method.to_string() == external_method.to_string() {
