@@ -121,7 +121,7 @@ impl Fold for Args {
     /// Rewrite calls of the form func(...) => func(..., state)
     /// If the call is in self.external_calls, ignore it
     fn fold_expr_call(&mut self, call: ExprCall) -> ExprCall {
-        // println!("Rewriting fn call {:#?}", call);
+        //println!("Rewriting fn call {#:?}", call);
         // if call is external, ignore it
         for external_call in self.external_calls.iter() {
             let func_name: Result<Ident> = expr_to_ident(*call.func.clone());
@@ -144,7 +144,8 @@ impl Fold for Args {
     /// Rewrite method calls of the form o.method(...) => o.method(..., state)
     /// If the call is in self.external_methodss, ignore it
     fn fold_expr_method_call(&mut self, method_call: ExprMethodCall) -> ExprMethodCall {
-        println!("method call = {:#?}", method_call);
+        println!("method call = {:?}", method_call);
+
         // If method is external, ignore it
         for external_method in self.external_methods.iter() {
             if method_call.method.to_string() == external_method.to_string() {
