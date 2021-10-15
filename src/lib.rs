@@ -146,21 +146,25 @@ impl Fold for Args {
     fn fold_expr_method_call(&mut self, method_call: ExprMethodCall) -> ExprMethodCall {
         println!("method call = {:?}", method_call);
 
+        let mut new_method_call = method_call;
+        println!("old reciever = {:#?}", new_method_call.receiver);
+        *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
+        println!("new reciever = {:#?}", new_method_call.receiver);
+
         // If method is external, ignore it
         for external_method in self.external_methods.iter() {
-            if method_call.method.to_string() == external_method.to_string() {
-                return method_call;
+            if new_method_call.method.to_string() == external_method.to_string() {
+                return new_method_call;
             }
         }
         // else, add ghost state
         let arg = self.var_as_expr();
-        let mut new_method_call = method_call;
         new_method_call.args.push(arg);
         //new_method_call.reciever = Box::new(self.fold_expr(*new_method_call.reciever))
         // recurse on reciever
-        println!("old reciever = {:#?}", new_method_call.receiver);
-        *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
-        println!("new reciever = {:#?}", new_method_call.receiver);
+        // println!("old reciever = {:#?}", new_method_call.receiver);
+        // *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
+        // println!("new reciever = {:#?}", new_method_call.receiver);
         //*new_method_call.args = self.fold_p
         // recurse on args
 
