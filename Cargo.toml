@@ -1,6 +1,6 @@
 [package]
 name = "extra_args"
-version = "0.1.63"
+version = "0.1.64"
 edition = "2018"
 license = "MIT"
 description = "Rust macro to pass implicit args to functions (use with care)"

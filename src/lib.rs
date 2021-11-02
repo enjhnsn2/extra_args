@@ -215,6 +215,13 @@ pub fn external_method(_args: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
 
+#[proc_macro_attribute]
+pub fn dummy_macro(args: TokenStream, input: TokenStream) -> TokenStream {
+    println!("args: \"{}\"", args.to_string());
+    println!("input: \"{}\"", input.to_string());
+    input
+}
+
 // #[cfg(feature = "enable")]
 // #[proc_macro_attribute]
 // pub fn all_with_extra_arg(args: TokenStream, input: TokenStream) -> TokenStream {
