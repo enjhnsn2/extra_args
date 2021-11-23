@@ -1,5 +1,6 @@
 #![feature(proc_macro_diagnostic)]
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::quote;
 use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream, Result};
@@ -97,8 +98,17 @@ impl Parse for Args {
                 decl,
                 var,
                 ty,
-                external_calls: Vec::new(),
-                external_methods: Vec::new(),
+                // Hardcoded external calls
+                external_calls: vec![
+                    Ident::new("Ok", Span::call_site()),
+                    Ident::new("Err", Span::call_site()),
+                ],
+                // Hardcoded External methods
+                external_methods: vec![
+                    Ident::new("into", Span::call_site()),
+                    Ident::new("len", Span::call_site()),
+                    Ident::new("ok_or", Span::call_site()),
+                ],
             });
         }
 
@@ -221,6 +231,25 @@ pub fn dummy_macro(args: TokenStream, input: TokenStream) -> TokenStream {
     println!("input: \"{}\"", input.to_string());
     input
 }
+
+// #[proc_macro_attribute]
+// pub fn fuzz_trusted(args: TokenStream, input: TokenStream) -> TokenStream {
+//     println!("args: \"{}\"", args.to_string());
+//     println!("input: \"{}\"", input.to_string());
+
+//     // // Parse the input tokens into a syntax tree
+//     // let input = parse_macro_input!(input as DeriveInput);
+
+//     // Build the output, possibly using quasi-quotation
+//     let expanded = quote! {
+//         input.to_string()
+//         input.to_string()
+//     };
+
+//     // Hand the output tokens back to the compiler
+//     TokenStream::from(expanded)
+//     input
+// }
 
 // #[cfg(feature = "enable")]
 // #[proc_macro_attribute]
