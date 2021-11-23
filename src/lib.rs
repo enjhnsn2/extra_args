@@ -4,10 +4,11 @@ use proc_macro2::Span;
 use quote::quote;
 use syn::fold::Fold;
 use syn::parse::{Parse, ParseStream, Result};
+use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{
     parse_macro_input, Attribute, Expr, ExprCall, ExprMethodCall, ExprPath, FnArg, Ident, ItemFn,
-    Pat, Path, PathArguments, PathSegment, Signature, Type,
+    Meta, NestedMeta, Pat, Path, PathArguments, PathSegment, Signature, Token, Type,
 };
 
 /// Right now macro should be used like:
@@ -102,6 +103,7 @@ impl Parse for Args {
                 external_calls: vec![
                     Ident::new("Ok", Span::call_site()),
                     Ident::new("Err", Span::call_site()),
+                    Ident::new("new", Span::call_site()),
                 ],
                 // Hardcoded External methods
                 external_methods: vec![
@@ -190,6 +192,29 @@ impl Fold for Args {
             };
         }
 
+        if attr.path.is_ident("external_calls") {
+            let func_names: Result<Meta> = attr.parse_meta();
+            if let Ok(Meta::List(l)) = func_names {
+                println!("{:?}", l.path);
+                // assert!(l.path == "external_calls");
+                // iterate over punctuated list of elements
+                for meta in l.nested.iter() {
+                    if let NestedMeta::Meta(m2) = meta {
+                        let name = path_to_last_ident(m2.path().clone()).unwrap();
+                        self.external_calls.push(name.clone());
+                    }
+                }
+            }
+            // match func_names {
+            //     Ok(names) => {
+            //         for name in names.iter(){
+            //             self.external_calls.push(name.clone())
+            //         }
+            //     },
+            //     Err(_) => return attr,
+            // };
+        }
+
         attr
     }
 }
@@ -222,6 +247,16 @@ pub fn external_call(_args: TokenStream, input: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn external_method(_args: TokenStream, input: TokenStream) -> TokenStream {
+    input
+}
+
+#[proc_macro_attribute]
+pub fn external_calls(_args: TokenStream, input: TokenStream) -> TokenStream {
+    input
+}
+
+#[proc_macro_attribute]
+pub fn external_methods(_args: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
 
