@@ -196,7 +196,6 @@ impl Fold for Args {
             let func_names: Result<Meta> = attr.parse_meta();
             if let Ok(Meta::List(l)) = func_names {
                 println!("{:?}", l.path);
-                // assert!(l.path == "external_calls");
                 // iterate over punctuated list of elements
                 for meta in l.nested.iter() {
                     if let NestedMeta::Meta(m2) = meta {
@@ -205,15 +204,30 @@ impl Fold for Args {
                     }
                 }
             }
-            // match func_names {
-            //     Ok(names) => {
-            //         for name in names.iter(){
-            //             self.external_calls.push(name.clone())
-            //         }
-            //     },
-            //     Err(_) => return attr,
-            // };
         }
+
+        if attr.path.is_ident("external_methods") {
+            let func_names: Result<Meta> = attr.parse_meta();
+            if let Ok(Meta::List(l)) = func_names {
+                println!("{:?}", l.path);
+                // iterate over punctuated list of elements
+                for meta in l.nested.iter() {
+                    if let NestedMeta::Meta(m2) = meta {
+                        let name = path_to_last_ident(m2.path().clone()).unwrap();
+                        self.external_methods.push(name.clone());
+                    }
+                }
+            }
+        }
+        // match func_names {
+        //     Ok(names) => {
+        //         for name in names.iter(){
+        //             self.external_calls.push(name.clone())
+        //         }
+        //     },
+        //     Err(_) => return attr,
+        // };
+        //}
 
         attr
     }
