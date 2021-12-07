@@ -104,6 +104,10 @@ impl Parse for Args {
                     Ident::new("Ok", Span::call_site()),
                     Ident::new("Err", Span::call_site()),
                     Ident::new("new", Span::call_site()),
+                    Ident::new("start_timer", Span::call_site()),
+                    Ident::new("stop_timer", Span::call_site()),
+                    Ident::new("push_syscall_result", Span::call_site()),
+                    Ident::new("push_hostcall_result", Span::call_site()),
                 ],
                 // Hardcoded External methods
                 external_methods: vec![
