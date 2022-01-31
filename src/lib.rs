@@ -101,9 +101,11 @@ impl Parse for Args {
                 ty,
                 // Hardcoded external calls
                 external_calls: vec![
+                    // Common calls
                     Ident::new("Ok", Span::call_site()),
                     Ident::new("Err", Span::call_site()),
                     Ident::new("new", Span::call_site()),
+                    // Instrumentation
                     Ident::new("start_timer", Span::call_site()),
                     Ident::new("stop_timer", Span::call_site()),
                     Ident::new("push_syscall_result", Span::call_site()),
@@ -111,9 +113,14 @@ impl Parse for Args {
                 ],
                 // Hardcoded External methods
                 external_methods: vec![
+                    // Common methods
                     Ident::new("into", Span::call_site()),
                     Ident::new("len", Span::call_site()),
                     Ident::new("ok_or", Span::call_site()),
+                    Ident::new("fits_in_lin_mem", Span::call_site()),
+                    Ident::new("fits_in_lin_mem_usize", Span::call_site()),
+                    Ident::new("in_lin_mem", Span::call_site()),
+                    Ident::new("in_lin_mem_usize", Span::call_site()),
                 ],
             });
         }
