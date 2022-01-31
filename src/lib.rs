@@ -145,15 +145,15 @@ impl Fold for Args {
     /// Rewrite calls of the form func(...) => func(..., state)
     /// If the call is in self.external_calls, ignore it
     fn fold_expr_call(&mut self, call: ExprCall) -> ExprCall {
-        println!("==> Rewriting fn call {:#?}", call);
-        println!("External calls: {:#?}", self.external_calls);
+        //println!("==> Rewriting fn call {:#?}", call);
+        //println!("External calls: {:#?}", self.external_calls);
         // if call is external, ignore it
         for external_call in self.external_calls.iter() {
             let func_name: Result<Ident> = expr_to_ident(*call.func.clone());
             match func_name {
                 Ok(name) => {
                     if name.to_string() == external_call.to_string() {
-                        println!("<== Call to {:#?} is external, skipping", call);
+                        //println!("<== Call to {:#?} is external, skipping", call);
                         return call;
                     }
                 }
@@ -164,29 +164,29 @@ impl Fold for Args {
         let arg = self.var_as_expr();
         let mut new_call = call;
         new_call.args.push(arg);
-        println!("<== Call instrumented: {:#?}", new_call);
+        //println!("<== Call instrumented: {:#?}", new_call);
         new_call
     }
 
     /// Rewrite method calls of the form o.method(...) => o.method(..., state)
     /// If the call is in self.external_methods, ignore it
     fn fold_expr_method_call(&mut self, method_call: ExprMethodCall) -> ExprMethodCall {
-        println!("==> Rewriting method call {:#?}", method_call);
-        println!("External methods: {:#?}", self.external_methods);
+        //println!("==> Rewriting method call {:#?}", method_call);
+        //println!("External methods: {:#?}", self.external_methods);
         let mut new_method_call = method_call;
         *new_method_call.receiver = self.fold_expr(*new_method_call.receiver);
 
         // If method is external, ignore it
         for external_method in self.external_methods.iter() {
             if new_method_call.method.to_string() == external_method.to_string() {
-                println!("<== Call to {:#?} is external, skipping", new_method_call);
+                //println!("<== Call to {:#?} is external, skipping", new_method_call);
                 return new_method_call;
             }
         }
         // else, add ghost state
         let arg = self.var_as_expr();
         new_method_call.args.push(arg);
-        println!("<== Method call instrumented: {:#?}", new_method_call);
+        //println!("<== Method call instrumented: {:#?}", new_method_call);
         new_method_call
     }
 
