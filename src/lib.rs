@@ -118,10 +118,10 @@ impl Parse for Args {
                     Ident::new("len", Span::call_site()),
                     Ident::new("ok_or", Span::call_site()),
                     // Pure methods: todo, handle pure methods better
-                    Ident::new("fits_in_lin_mem", Span::call_site()),
-                    Ident::new("fits_in_lin_mem_usize", Span::call_site()),
-                    Ident::new("in_lin_mem", Span::call_site()),
-                    Ident::new("in_lin_mem_usize", Span::call_site()),
+                    //Ident::new("fits_in_lin_mem", Span::call_site()),
+                    //Ident::new("fits_in_lin_mem_usize", Span::call_site()),
+                    //Ident::new("in_lin_mem", Span::call_site()),
+                    //Ident::new("in_lin_mem_usize", Span::call_site()),
                 ],
             });
         }

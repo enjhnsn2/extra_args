@@ -1,9 +1,9 @@
 [package]
-name = "extra_args"
+name = "wave-macros"
 version = "0.1.72"
 edition = "2018"
 license = "MIT"
-description = "Rust macro to pass implicit args to functions (use with care)"
+description = "Rust macros for the Wave verified Wasm runtime"
 homepage = "https://github.com/enjhnsn2/extra_args"
 repository = "https://github.com/enjhnsn2/extra_args"
 readme = "README.md"
